@@ -1,4 +1,4 @@
-package io.iclue.backgroundvideo;
+package com.wasner.cordova.camerawebview;
 
 import android.hardware.Camera;
 import android.media.MediaRecorder;

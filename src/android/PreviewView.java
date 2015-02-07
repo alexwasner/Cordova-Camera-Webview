@@ -1,4 +1,4 @@
-package io.iclue.backgroundvideo;
+package com.wasner.cordova.camerawebview;
 
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
