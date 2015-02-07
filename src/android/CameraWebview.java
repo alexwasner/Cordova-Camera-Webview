@@ -21,7 +21,6 @@ public class CameraWebview extends CordovaPlugin{
     private String FILE_NAME = "";
     private CameraView cameraView;
     
-    private CameraView cameraView;
     private RelativeLayout relativeLayout;
     
     @Override
@@ -40,9 +39,9 @@ public class CameraWebview extends CordovaPlugin{
                 FILE_NAME = args.getString(0);
                 String CAMERA_FACE = args.getString(1);
                 
-                if(videoOverlay == null) {
-                    videoOverlay = new VideoOverlay(cordova.getActivity(), getFilePath());
-                    videoOverlay.setCameraFacing(CAMERA_FACE);
+                if(cameraView == null) {
+                    cameraView = new CameraView(cordova.getActivity(), getFilePath());
+                    cameraView.setCameraFacing(CAMERA_FACE);
                     
                     //NOTE: Now wrapping view in relative layout because GT-I9300 testing
                     //      the overlay required wrapping for setAlpha to work.
@@ -53,7 +52,7 @@ public class CameraWebview extends CordovaPlugin{
                         public void run() {
                             webView.setKeepScreenOn(true);
                             try {
-                              relativeLayout.addView(videoOverlay, new ViewGroup.LayoutParams(webView.getWidth(), webView.getHeight()));
+                              relativeLayout.addView(cameraView, new ViewGroup.LayoutParams(webView.getWidth(), webView.getHeight()));
                               cordova.getActivity().addContentView(relativeLayout, new ViewGroup.LayoutParams(webView.getWidth(), webView.getHeight()));
                             } catch(Exception e) {
                                 Log.e(TAG, "Error during preview create", e);
@@ -62,14 +61,14 @@ public class CameraWebview extends CordovaPlugin{
                         }
                     });
                 } else {
-                    videoOverlay.setCameraFacing(CAMERA_FACE);
-                    videoOverlay.setFilePath(getFilePath());
+                    cameraView.setCameraFacing(CAMERA_FACE);
+                    cameraView.setFilePath(getFilePath());
                     
                     cordova.getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             try {
-                                videoOverlay.startPreview(true);
+                                cameraView.startPreview(true);
                             } catch(Exception e) {
                                 Log.e(TAG, "Error during preview create", e);
                                 callbackContext.error(TAG + ": " + e.getMessage());
@@ -81,12 +80,12 @@ public class CameraWebview extends CordovaPlugin{
             }
             
             if(ACTION_STOP_RECORDING.equals(action)) {
-                if(videoOverlay != null) {
+                if(cameraView != null) {
                     cordova.getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            if(videoOverlay != null)
-                                videoOverlay.onPause();
+                            if(cameraView != null)
+                                cameraView.onPause();
                         }
                     });
                 }
@@ -119,22 +118,22 @@ public class CameraWebview extends CordovaPlugin{
     //Plugin Method Overrides
     @Override
     public void onPause(boolean multitasking) {
-        if(videoOverlay != null)
-            videoOverlay.onPause();
+        if(cameraView != null)
+            cameraView.onPause();
         super.onPause(multitasking);
     }
     
     @Override
     public void onResume(boolean multitasking) {
         super.onResume(multitasking);
-        if(videoOverlay != null)
-            videoOverlay.onResume();
+        if(cameraView != null)
+            cameraView.onResume();
     }
     
     @Override
     public void onDestroy() {
-        if(videoOverlay != null)
-            videoOverlay.onDestroy();
+        if(cameraView != null)
+            cameraView.onDestroy();
         super.onDestroy();
     }
     
