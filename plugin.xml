@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
-    id="com.wasner.cordova.camera"
+    id="com.wasner.cordova.camerawebview"
     version="0.0.1-dev">
     <name>Camera Webview</name>
     <description>Cordova Camera Plugin</description>
@@ -16,7 +16,7 @@
     <platform name="android">
         <config-file target="res/xml/config.xml" parent="/*">
             <feature name="Camera">
-                <param name="android-package" value="com.wasner.cordova.camera.CameraWebview"/>
+                <param name="android-package" value="com.wasner.cordova.camerawebview.CameraWebview"/>
             </feature>
         </config-file>
         <config-file target="AndroidManifest.xml" parent="/*">
@@ -29,10 +29,10 @@
             <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
         </config-file>
 
-        <source-file src="src/android/CameraView.java" target-dir="src/com/wasner/cordova/camera" />
-        <source-file src="src/android/CameraHelper.java" target-dir="src/com/wasner/cordova/camera" />
-        <source-file src="src/android/Preview.java" target-dir="src/com/wasner/cordova/camera" />
-        <source-file src="src/android/CameraView.java" target-dir="src/com/wasner/cordova/camera" />
+        <source-file src="src/android/CameraView.java" target-dir="src/com/wasner/cordova/camerawebview" />
+        <source-file src="src/android/CameraHelper.java" target-dir="src/com/wasner/cordova/camerawebview" />
+        <source-file src="src/android/Preview.java" target-dir="src/com/wasner/cordova/camerawebview" />
+        <source-file src="src/android/CameraView.java" target-dir="src/com/wasner/cordova/camerawebview" />
 
      </platform>
 

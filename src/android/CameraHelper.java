@@ -1,4 +1,4 @@
-package com.wasner.cordova.camera;
+package com.wasner.cordova.camerawebview;
 
 import android.hardware.Camera;
 import android.media.CamcorderProfile;
