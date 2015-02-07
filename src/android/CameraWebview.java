@@ -93,13 +93,13 @@ public class CameraWebview extends CordovaPlugin{
   }
 
   private String getFilePath(){
-      return  FILE_PATH + getNextFileName() + '.mp4';
+      return  FILE_PATH + getNextFileName() + ".mp4";
   }
 
   private String getNextFileName(){
       int i=1;
       String tmpFileName = FILE_NAME;
-      while(new File(FILE_PATH + tmpFileName + '.mp4').exists()) {
+      while(new File(FILE_PATH + tmpFileName + ".mp4").exists()) {
           tmpFileName = FILE_NAME + '_' + i;
           i++;
       }
