@@ -28,7 +28,7 @@ public class CameraView extends ViewGroup {
     public CameraView(Context context, String filePath) {
         super(context);
         this.filePath = filePath;
-        preview = getPreview();
+        preview = new PreviewView(this);
         addView(preview.getView());
     }
 
@@ -123,13 +123,6 @@ public class CameraView extends ViewGroup {
             cameraId = -1;
             camera = null;
         }
-    }
-
-    private Preview getPreview() {
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
-            return new TextureViewPreview(this);
-        else
-            return new SurfaceViewPreview(this);
     }
 
     void previewAvailable(){
@@ -248,12 +241,6 @@ public class CameraView extends ViewGroup {
     public void onDestroy() {
         Log.d(TAG, "onDestroy called");
         onPause();
-    }
-
-    public PreviewType getViewType(){
-        if (preview != null)
-            return preview.getPreviewType();
-        return PreviewType.NONE;
     }
 
     public void setFilePath(String filePath) {
