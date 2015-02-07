@@ -29,7 +29,7 @@
             <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
         </config-file>
 
-        <source-file src="src/android/CameraView.java" target-dir="src/com/wasner/cordova/camerawebview" />
+        <source-file src="src/android/CameraWebview.java" target-dir="src/com/wasner/cordova/camerawebview" />
         <source-file src="src/android/CameraHelper.java" target-dir="src/com/wasner/cordova/camerawebview" />
         <source-file src="src/android/Preview.java" target-dir="src/com/wasner/cordova/camerawebview" />
         <source-file src="src/android/CameraView.java" target-dir="src/com/wasner/cordova/camerawebview" />
