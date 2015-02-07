@@ -1,9 +1,10 @@
 var CameraWebview = {
-  showCamera: function (success, failure) {
-    cordova.exec(success, failure, "CameraWebview", "show", []);
+  start : function(filename, camera, successFunction, errorFunction) {
+    camera = camera || 'back';
+      cordova.exec(successFunction, errorFunction, "CameraWebview","start", [filename, camera]);
   },
-  hideCamera: function (success, failure) {
-    cordova.exec(success, failure, "CameraWebview", "hide", []);
+  stop : function(successFunction, errorFunction) {
+      cordova.exec(successFunction, errorFunction, "CameraWebview","stop", []);
   }
 }
 
