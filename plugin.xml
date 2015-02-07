@@ -20,10 +20,19 @@
             </feature>
         </config-file>
         <config-file target="AndroidManifest.xml" parent="/*">
+            <uses-permission android:name="android.permission.CAMERA" />
+            <uses-permission android:name="android.permission.RECORD_AUDIO" />
             <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+            
+            <uses-feature android:name="android.hardware.camera" android:required="false" />
+            <uses-feature android:name="android.hardware.camera.front" android:required="false" />
+            <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
         </config-file>
 
-        <source-file src="src/android/CameraLauncher.java" target-dir="src/com/wasner/cordova/camera" />
+        <source-file src="src/android/CameraView.java" target-dir="src/com/wasner/cordova/camera" />
+        <source-file src="src/android/CameraHelper.java" target-dir="src/com/wasner/cordova/camera" />
+        <source-file src="src/android/Preview.java" target-dir="src/com/wasner/cordova/camera" />
+        <source-file src="src/android/CameraView.java" target-dir="src/com/wasner/cordova/camera" />
 
      </platform>
 
@@ -42,8 +51,9 @@
          <framework src="CoreLocation.framework" />
          <framework src="CoreGraphics.framework" />
          <framework src="AssetsLibrary.framework" />
-         <framework src="MobileCoreServices.framework" />
-         <framework src="CoreGraphics.framework" />
+         <framework src="MobileCoreServices.framework" /> 
+        <framework src="MediaPlayer.framework" weak="true" />
+        <framework src="CoreGraphics.framework" />
          
          <config-file target="*-Info.plist" parent="NSLocationWhenInUseUsageDescription">
              <string></string>
