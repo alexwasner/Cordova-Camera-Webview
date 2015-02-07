@@ -13,15 +13,15 @@ import java.io.IOException;
 public class PreviewView implements Preview, TextureView.SurfaceTextureListener {
     private static final String TAG = "CAMERA_WEBVIEW_TEXTURE";
     private final TextureView view;
-    private final VideoOverlay overlay;
+    private final CameraView cameraView;
     private SurfaceTexture surface;
     private float opacity = 0.2f;
     private boolean startRecordingOnCreate = true;
 
-    public PreviewView (VideoOverlay overlay) {
+    public PreviewView (CameraView cameraView) {
         Log.d(TAG, "Creating Texture Preview");
-        this.overlay = overlay;
-        view = new TextureView(overlay.getContext());
+        this.cameraView = cameraView;
+        view = new TextureView(cameraView.getContext());
         view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         view.setClickable(false);
         view.setSurfaceTextureListener(this);
@@ -35,12 +35,12 @@ public class PreviewView implements Preview, TextureView.SurfaceTextureListener 
         Log.d(TAG, "Creating Texture Created");
         try {
             this.surface = surfaceTexture;
-            overlay.previewAvailable();
-            overlay.initPreview(height, width);
+            cameraView.previewAvailable();
+            cameraView.initPreview(height, width);
 
 
             if (startRecordingOnCreate) {
-                overlay.startRecording();
+                cameraView.startRecording();
             }
         } catch (Exception ex) {
             Log.e(TAG, "Error start camera", ex);
