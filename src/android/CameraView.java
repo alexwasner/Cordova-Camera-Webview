@@ -1,6 +1,5 @@
 package com.wasner.cordova.camerawebview;
 
-
 import android.content.Context;
 import android.hardware.Camera;
 import android.media.CamcorderProfile;
