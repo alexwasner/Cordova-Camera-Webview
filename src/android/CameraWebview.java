@@ -24,6 +24,7 @@ public class CameraWebview extends CordovaPlugin{
   private static final String TAG = "CAMERA_WEBVIEW";
   private String FILE_PATH = "";
   private String FILE_NAME = "";
+  private CameraView cameraView;
 
   @Override
   public boolean execute(String action, JSONArray args, final CallbackContext callbackContext) throws JSONException {
