@@ -1,8 +1,14 @@
 package com.wasner.cordova.camerawebview;
 
 import android.util.Log;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.graphics.Color;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
@@ -13,13 +19,14 @@ import org.json.JSONException;
 
 import java.io.File;
 
-public class CameraWebview extends CordovaPlugin{
+@SuppressLint("SetJavaScriptEnabled") public class CameraWebview extends CordovaPlugin{
     private static final String ACTION_START_RECORDING = "start";
     private static final String ACTION_STOP_RECORDING = "stop";
     private static final String TAG = "CAMERA_WEBVIEW";
     private String FILE_PATH = "";
     private String FILE_NAME = "";
     private CameraView cameraView;
+    private WebView webViewWrapper;
     
     private RelativeLayout relativeLayout;
     
@@ -42,9 +49,7 @@ public class CameraWebview extends CordovaPlugin{
                 if(cameraView == null) {
                     cameraView = new CameraView(cordova.getActivity(), getFilePath());
                     cameraView.setCameraFacing(CAMERA_FACE);
-                    
-                    //NOTE: Now wrapping view in relative layout because GT-I9300 testing
-                    //      the overlay required wrapping for setAlpha to work.
+
                     relativeLayout = new RelativeLayout(cordova.getActivity());
                     
                     cordova.getActivity().runOnUiThread(new Runnable() {
@@ -52,8 +57,21 @@ public class CameraWebview extends CordovaPlugin{
                         public void run() {
                             webView.setKeepScreenOn(true);
                             try {
+                              webViewWrapper = new WebView((Context) cordova.getActivity());
+                              webViewWrapper.getSettings().setJavaScriptEnabled(true);
+                              webViewWrapper.setBackgroundColor(Color.TRANSPARENT);
+                              webViewWrapper.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+
+                              webViewWrapper.setWebViewClient(new WebViewClient());
+                              webViewWrapper.loadUrl("file:///android_asset/www/cameraOverlay.html");
+                              webViewWrapper.requestFocus();
+                              webViewWrapper.requestFocusFromTouch();
+                     
                               relativeLayout.addView(cameraView, new ViewGroup.LayoutParams(webView.getWidth(), webView.getHeight()));
+
                               cordova.getActivity().addContentView(relativeLayout, new ViewGroup.LayoutParams(webView.getWidth(), webView.getHeight()));
+                              cordova.getActivity().addContentView(webViewWrapper, new ViewGroup.LayoutParams(webView.getWidth(), webView.getHeight()));
+
                             } catch(Exception e) {
                                 Log.e(TAG, "Error during preview create", e);
                                 callbackContext.error(TAG + ": " + e.getMessage());
@@ -136,5 +154,5 @@ public class CameraWebview extends CordovaPlugin{
             cameraView.onDestroy();
         super.onDestroy();
     }
-    
+
 }
