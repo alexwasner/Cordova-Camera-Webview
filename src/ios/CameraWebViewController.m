@@ -8,7 +8,7 @@
 #import "CameraWebViewController.h"
 #import <Cordova/CDV.h>
 #import <AVFoundation/AVFoundation.h>
-#define CAMERA_SCALAR 1.6
+#define CAMERA_SCALAR 1.7
 @interface CameraWebViewController ()
 
 @end
@@ -27,8 +27,6 @@
     // Dispose of any resources that can be recreated.
 }
 
-
-
 - ()init {
     self = [super initWithNibName:nil bundle:nil];
     self.picker = [[UIImagePickerController alloc] init];
@@ -42,7 +40,11 @@
     if ([self.picker respondsToSelector:@selector(setEdgesForExtendedLayout:)]) {
         [self.picker setEdgesForExtendedLayout:UIRectEdgeNone];
     }
-    self.picker.cameraViewTransform = CGAffineTransformScale(self.picker.cameraViewTransform, CAMERA_SCALAR, CAMERA_SCALAR);
+    
+    if(UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone){
+        self.picker.cameraViewTransform = CGAffineTransformScale(self.picker.cameraViewTransform, CAMERA_SCALAR, CAMERA_SCALAR);
+    }
+    
     
     self.customWebView = [[UIWebView alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     self.customWebView.userInteractionEnabled = YES;
@@ -50,17 +52,18 @@
     [self.customWebView addGestureRecognizer:pinchRec];
     self.customWebView.opaque = NO;
     self.customWebView.backgroundColor = [UIColor clearColor];
+    NSURL *url = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"webview" ofType:@"html" inDirectory:@"www"]];
+    [self.customWebView loadRequest:[NSURLRequest requestWithURL:url]];
     
-    NSString *htmlFile = [[NSBundle mainBundle] pathForResource:@"www/webview" ofType:@"html"];
-    NSString* htmlString = [NSString stringWithContentsOfFile:htmlFile encoding:NSUTF8StringEncoding error:nil];
-    [self.customWebView loadHTMLString:htmlString baseURL:nil];
-    
+    self.customWebView.scalesPageToFit = YES;
     self.picker.cameraOverlayView = self.customWebView;
+    self.customWebView.contentMode = UIViewContentModeScaleAspectFit;
+    self.customWebView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
+    self.customWebView.scrollView.bounces = NO;
     
     [self addChildViewController: self.picker];
     [self.picker didMoveToParentViewController: self];
     [self.view addSubview: self.picker.view];
     return self;
 }
-
 @end
