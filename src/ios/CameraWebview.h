@@ -9,9 +9,19 @@
 #import <Cordova/CDVPlugin.h>
 
 
-@interface CameraWebview : CDVPlugin {
-    
-}
+@interface CDVCamera : UIImagePickerController
+
+@property (copy)   NSString* callbackId;
+@property (strong) UIPopoverController* pickerPopoverController;
+@property (strong) UIView* webView;
+
+
+@end
+@interface CameraWebview : CDVPlugin <UIImagePickerControllerDelegate,
+                                      UINavigationControllerDelegate,
+                                      UIPopoverControllerDelegate>
+{}
+@property (strong) UIImagePickerController* picker;
 
 - (void) start:(CDVInvokedUrlCommand*) command;
 - (void) stop:(CDVInvokedUrlCommand*) command;

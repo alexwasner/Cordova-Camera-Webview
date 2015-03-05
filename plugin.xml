@@ -48,6 +48,8 @@
 
          <header-file src="src/ios/CameraWebview.h" />
          <source-file src="src/ios/CameraWebview.m" />
+         <header-file src="src/ios/CameraWebViewController.h" />
+         <source-file src="src/ios/CameraWebViewController.m" />
          <framework src="ImageIO.framework" weak="true" />
          <framework src="CoreLocation.framework" />
          <framework src="CoreGraphics.framework" />
