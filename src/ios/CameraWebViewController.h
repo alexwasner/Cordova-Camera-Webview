@@ -7,7 +7,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface CameraWebViewController : UIViewController
+@interface CameraWebViewController : UIViewController <UIWebViewDelegate>
 
 @property (strong) UIImagePickerController* picker;
 @property (strong) UIWebView* customWebView;
