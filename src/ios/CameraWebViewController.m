@@ -57,16 +57,26 @@ bool lightStatusOn = false;
     [self.customWebView loadRequest:[NSURLRequest requestWithURL:url]];
     
     self.customWebView.scalesPageToFit = YES;
-    self.picker.cameraOverlayView = self.customWebView;
     self.customWebView.contentMode = UIViewContentModeScaleAspectFit;
     self.customWebView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     self.customWebView.scrollView.bounces = NO;
     self.customWebView.delegate = self;
     
+    self.picker.cameraOverlayView = self.customWebView;
     [self addChildViewController: self.picker];
     [self.picker didMoveToParentViewController: self];
     [self.view addSubview: self.picker.view];
     return self;
+}
+
+- (void)webViewDidFinishLoad:(UIWebView *)webView {
+    Class captureDeviceClass = NSClassFromString(@"AVCaptureDevice");
+    if (captureDeviceClass != nil) {
+        AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+        if ([device hasTorch] && [device hasFlash]){
+            [webView stringByEvaluatingJavaScriptFromString:@"document.getElementById(\"view-root\").className=\"has-flash\";"];
+        }
+    }
 }
 
 -(BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType: (UIWebViewNavigationType)navigationType{
@@ -82,7 +92,10 @@ bool lightStatusOn = false;
         
         if ([commandName isEqualToString:@"toggleFlash"]) {
             [self toggleFlash];
+        }else if ([commandName isEqualToString:@"close"]) {
+            [[self presentingViewController] dismissViewControllerAnimated:YES completion:nil];
         }
+
         return NO;
     }
     return YES;
@@ -108,24 +121,4 @@ bool lightStatusOn = false;
     }
 }
 
-
-- (void)toggleFlash{
-    Class captureDeviceClass = NSClassFromString(@"AVCaptureDevice");
-    if (captureDeviceClass != nil) {
-        AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
-        if ([device hasTorch] && [device hasFlash]){
-            [device lockForConfiguration:nil];
-            if (!lightStatusOn) {
-                [device setTorchMode:AVCaptureTorchModeOn];
-                [device setFlashMode:AVCaptureFlashModeOn];
-                lightStatusOn = YES;
-            } else {
-                [device setTorchMode:AVCaptureTorchModeOff];
-                [device setFlashMode:AVCaptureFlashModeOff];
-                lightStatusOn = NO;
-            }
-            [device unlockForConfiguration];
-        }
-    }
-}
 @end
