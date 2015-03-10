@@ -2,6 +2,7 @@ package com.wasner.cordova.camerawebview;
 
 import android.content.Context;
 import android.hardware.Camera;
+import android.hardware.Camera.Parameters;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
 import android.os.Build;
@@ -13,12 +14,13 @@ import java.io.IOException;
 
 public class CameraView extends ViewGroup {
     private static final String TAG = "CameraView";
-    private final Preview preview;
+    private Preview preview;
     private MediaRecorder recorder = null;
     private Camera camera = null;
     private int cameraId;
     private int cameraFacing = Camera.CameraInfo.CAMERA_FACING_BACK;
     private String filePath = "";
+    private Boolean flashOn = false;
 
     private boolean inPreview = false;
     private boolean viewIsAttached = false;
@@ -222,7 +224,21 @@ public class CameraView extends ViewGroup {
         addView(preview.getView());
         viewIsAttached = true;
     }
-
+    
+    public void toggleFlash(){
+        if(camera != null) {
+            Camera.Parameters cp = camera.getParameters();
+            if(flashOn){
+                cp.setFlashMode(Parameters.FLASH_MODE_OFF);
+            }
+            else{
+                cp.setFlashMode(Parameters.FLASH_MODE_TORCH);
+            }
+            flashOn = !flashOn;
+            camera.setParameters(cp);
+        }
+    }
+    
     public void onPause() {
         try {
             Log.d(TAG, "onPause called");

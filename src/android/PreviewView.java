@@ -25,9 +25,6 @@ public class PreviewView implements Preview, TextureView.SurfaceTextureListener 
         view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         view.setClickable(false);
         view.setSurfaceTextureListener(this);
-
-        //Note done in backgroundvideo on the wrapping view.
-        //view.setAlpha(opacity);
     }
 
     @Override

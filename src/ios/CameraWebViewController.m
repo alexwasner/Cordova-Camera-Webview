@@ -23,6 +23,15 @@ bool lightStatusOn = false;
 }
 
 
+- (BOOL)shouldAutorotate
+{
+    if(UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone){
+        return NO;
+    }
+    else{
+        return YES;
+    }
+}
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
