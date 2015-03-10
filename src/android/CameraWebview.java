@@ -7,6 +7,8 @@ import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
@@ -23,7 +25,6 @@ import java.io.File;
 @SuppressLint({ "SetJavaScriptEnabled", "NewApi" })
 public class CameraWebview extends CordovaPlugin {
     private static final String ACTION_START_RECORDING = "start";
-    private static final String ACTION_STOP_RECORDING = "stop";
     private static final String TAG = "CAMERA_WEBVIEW";
     private String FILE_PATH = "";
     private String FILE_NAME = "";
@@ -54,10 +55,18 @@ public class CameraWebview extends CordovaPlugin {
                     cameraView.setCameraFacing(CAMERA_FACE);
                     self = this;
                     relativeLayout = new RelativeLayout(cordova.getActivity());
+                    relativeLayout.setBackgroundColor(Color.BLACK);
+                    
                     cordova.getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+
                             webView.setKeepScreenOn(true);
+                            cordova.getActivity().addContentView(
+                                    relativeLayout,
+                                    new ViewGroup.LayoutParams(webView
+                                            .getWidth(), webView
+                                            .getHeight()));
                             try {
                                 webViewWrapper = new WebView((Context) cordova
                                         .getActivity());
@@ -81,30 +90,28 @@ public class CameraWebview extends CordovaPlugin {
                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                                     WebView.setWebContentsDebuggingEnabled(true);
                                 }
+
+                                relativeLayout.setY(webView.getHeight());
                                 relativeLayout.addView(
-                                        cameraView,
-                                        new ViewGroup.LayoutParams(webView
-                                                .getWidth(), webView
-                                                .getHeight()));
-                                
+                                            cameraView,
+                                            new ViewGroup.LayoutParams(webView
+                                                    .getWidth(), webView
+                                                    .getHeight()));
+                                    
                                 relativeLayout.addView(
                                         webViewWrapper,
                                         new ViewGroup.LayoutParams(webView
                                                 .getWidth(), webView
                                                 .getHeight()));
                                 
-
-                                cordova.getActivity().addContentView(
-                                        relativeLayout,
-                                        new ViewGroup.LayoutParams(webView
-                                                .getWidth(), webView
-                                                .getHeight()));
-
+                                relativeLayout.animate().y(0).setDuration(400);
                             } catch (Exception e) {
                                 Log.e(TAG, "Error during preview create", e);
                                 callbackContext.error(TAG + ": "
                                         + e.getMessage());
                             }
+                            
+                              
                         }
                     });
                 } else {
@@ -114,27 +121,30 @@ public class CameraWebview extends CordovaPlugin {
                             try {
                                 cameraView.setCameraFacing(CAMERA_FACE);
                                 cameraView.setFilePath(getFilePath());
-                                webViewWrapper.loadUrl("file:///android_asset/www/webview.html");
-                                relativeLayout.setVisibility(View.VISIBLE);
                                 cameraView.startPreview(true);
+
+                                webViewWrapper.loadUrl("file:///android_asset/www/webview.html");
+                                webViewWrapper.requestFocus();
+                                webViewWrapper.requestFocusFromTouch();
+                                
+                                relativeLayout.animate().y(0).setDuration(400).setListener(new AnimatorListenerAdapter() {
+
+                                    @Override
+                                    public void onAnimationEnd(Animator animation) {
+                                        if(webViewWrapper.getParent() == null){
+                                            relativeLayout.addView(
+                                                    webViewWrapper,
+                                                    new ViewGroup.LayoutParams(webView
+                                                            .getWidth(), webView
+                                                            .getHeight())); 
+                                        }
+                                    }
+                                });
                             } catch (Exception e) {
                                 Log.e(TAG, "Error during preview create", e);
                                 callbackContext.error(TAG + ": "
                                         + e.getMessage());
                             }
-                        }
-                    });
-                }
-                return true;
-            }
-
-            if (ACTION_STOP_RECORDING.equals(action)) {
-                if (cameraView != null) {
-                    cordova.getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (cameraView != null)
-                                cameraView.onPause();
                         }
                     });
                 }
@@ -165,11 +175,16 @@ public class CameraWebview extends CordovaPlugin {
         cordova.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                relativeLayout.setVisibility(View.INVISIBLE);
-                webViewWrapper.loadUrl("about:blank");
                 if (cameraView != null) {
                     cameraView.onPause();
                 }
+                relativeLayout.animate().y(webView.getHeight()).setDuration(400).setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                      relativeLayout.removeView(webViewWrapper);
+                    }
+                });
+//              
             }
         });
 

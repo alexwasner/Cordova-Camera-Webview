@@ -189,7 +189,9 @@ public class CameraView extends ViewGroup {
         if(!inPreview) {
             if(preview != null && !viewIsAttached ) {
                 preview.startRecordingWhenAvailable(startRecording);
-                addView(preview.getView());
+                if(preview == null){
+                    addView(preview.getView()); 
+                }
             } else {
                 previewAvailable();
                 initPreview(getHeight(), getWidth());
@@ -221,7 +223,8 @@ public class CameraView extends ViewGroup {
     }
 
     public void onResume() {
-        addView(preview.getView());
+        if(preview == null)
+            addView(preview.getView());
         viewIsAttached = true;
     }
     
@@ -245,10 +248,10 @@ public class CameraView extends ViewGroup {
             stopRecording();
             stopPreview();
             preview.startRecordingWhenAvailable(false);
-            Log.d(TAG, "removing View");
-            if(preview != null)
-                removeView(preview.getView());
-            viewIsAttached = false;
+//            Log.d(TAG, "removing View");
+//            if(preview != null)
+//                removeView(preview.getView());
+//            viewIsAttached = false;
         } catch (IOException e) {
             Log.e(TAG, "Error in OnPause - Could not stop camera", e);
         }
