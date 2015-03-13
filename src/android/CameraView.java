@@ -7,10 +7,12 @@ import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
 import android.os.Build;
 import android.util.Log;
+import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
 
 import java.io.IOException;
+import java.util.List;
 
 public class CameraView extends ViewGroup {
     private static final String TAG = "CameraView";
@@ -49,7 +51,6 @@ public class CameraView extends ViewGroup {
     public boolean isRecording() {
         return recorder != null;
     }
-
     public void startRecording() {
         if (isRecording()) {
             Log.d(TAG, "Already Recording!");
@@ -264,5 +265,25 @@ public class CameraView extends ViewGroup {
 
     public void setFilePath(String filePath) {
         this.filePath = filePath;
+    }
+
+    public boolean hasFlash() {
+        initCamera();
+        if (camera == null) {
+            return false;
+        }
+
+        Camera.Parameters parameters = camera.getParameters();
+
+        if (parameters.getFlashMode() == null) {
+            return false;
+        }
+
+        List<String> supportedFlashModes = parameters.getSupportedFlashModes();
+        if (supportedFlashModes == null || supportedFlashModes.isEmpty() || supportedFlashModes.size() == 1 && supportedFlashModes.get(0).equals(Camera.Parameters.FLASH_MODE_OFF)) {
+            return false;
+        }
+
+        return true;
     }
 }

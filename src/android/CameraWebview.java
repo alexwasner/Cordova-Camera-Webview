@@ -1,9 +1,12 @@
 package com.wasner.cordova.camerawebview;
 
 import android.os.Build;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.RelativeLayout;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -11,6 +14,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 
 import org.apache.cordova.CallbackContext;
@@ -32,7 +36,7 @@ public class CameraWebview extends CordovaPlugin {
     private CameraView cameraView;
     private WebView webViewWrapper;
     private RelativeLayout relativeLayout;
-
+    private boolean hasFlash = false;
     @Override
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
         super.initialize(cordova, webView);
@@ -44,7 +48,7 @@ public class CameraWebview extends CordovaPlugin {
             final CallbackContext callbackContext) throws JSONException {
         try {
             Log.d(TAG, "ACTION: " + action);
-
+            cordova.getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
             if (ACTION_START_RECORDING.equals(action)) {
                 FILE_NAME = args.getString(0);
                 final String CAMERA_FACE = args.getString(1);
@@ -56,7 +60,7 @@ public class CameraWebview extends CordovaPlugin {
                     self = this;
                     relativeLayout = new RelativeLayout(cordova.getActivity());
                     relativeLayout.setBackgroundColor(Color.BLACK);
-                    
+                    hasFlash = cameraView.hasFlash();
                     cordova.getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -76,11 +80,22 @@ public class CameraWebview extends CordovaPlugin {
                                         .setBackgroundColor(Color.TRANSPARENT);
                                 webViewWrapper.setLayerType(
                                         View.LAYER_TYPE_SOFTWARE, null);
+                                if(hasFlash){
+                                    webViewWrapper.setWebViewClient(new WebViewClient(){
+                                        @Override
+                                        public void onPageFinished(WebView view, String url) {
+                                            String javascript="javascript: document.getElementById('view-root').setAttribute('class', 'has-flash');";
+                                            view.loadUrl(javascript);
+                                        }
+                                    });
+                                }
+                                
+                                else{
+                                    webViewWrapper.setWebViewClient(new WebViewClient());
+                                }
+                                
 
-                                webViewWrapper
-                                        .setWebViewClient(new WebViewClient());
-                                webViewWrapper
-                                        .loadUrl("file:///android_asset/www/webview.html");
+                                webViewWrapper.loadUrl("file:///android_asset/www/webview.html");
                                 webViewWrapper.requestFocus();
                                 webViewWrapper.requestFocusFromTouch();
                                 webViewWrapper.getSettings()
@@ -126,7 +141,7 @@ public class CameraWebview extends CordovaPlugin {
                                 webViewWrapper.loadUrl("file:///android_asset/www/webview.html");
                                 webViewWrapper.requestFocus();
                                 webViewWrapper.requestFocusFromTouch();
-                                
+
                                 relativeLayout.animate().y(0).setDuration(400).setListener(new AnimatorListenerAdapter() {
 
                                     @Override
@@ -172,6 +187,9 @@ public class CameraWebview extends CordovaPlugin {
     }
     
     public void close() {
+        if(isTablet()){
+            cordova.getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+        }
         cordova.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -181,12 +199,27 @@ public class CameraWebview extends CordovaPlugin {
                 relativeLayout.animate().y(webView.getHeight()).setDuration(400).setListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
-                      relativeLayout.removeView(webViewWrapper);
+                        relativeLayout.removeView(webViewWrapper);
                     }
                 });
 //              
             }
         });
+
+    }
+    
+    public boolean isTablet(){
+        WindowManager wm = (WindowManager) cordova.getActivity().getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
+        Display display = wm.getDefaultDisplay();
+        DisplayMetrics metrics = new DisplayMetrics();
+        display.getMetrics(metrics);
+        int density = cordova.getActivity().getApplicationContext().getResources().getDisplayMetrics().densityDpi / 160;
+        int width = metrics.widthPixels / density;
+        int height = metrics.heightPixels / density;
+        if(width > height && width > 800 || width < height && height > 800){
+            return true;
+        }
+        return false;
 
     }
 
@@ -224,6 +257,7 @@ public class CameraWebview extends CordovaPlugin {
         cordova.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
+
                 if (cameraView != null) {
                     cameraView.onDestroy();
                 }

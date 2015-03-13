@@ -32,6 +32,14 @@ bool lightStatusOn = false;
         return YES;
     }
 }
+- (NSUInteger)supportedInterfaceOrientations {
+    if(UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
+        return UIInterfaceOrientationMaskPortrait;
+    }
+    else {
+        return UIInterfaceOrientationMaskAll;
+    }
+}
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
@@ -93,12 +101,6 @@ bool lightStatusOn = false;
     if ([requestURLString hasPrefix:@"bridge:"]) {
         NSArray *components = [requestURLString componentsSeparatedByString:@":"];
         NSString *commandName = (NSString*)[components objectAtIndex:1];
-        //do stuff with args if needed
-        //        NSString *argsAsString = [ (NSString*)[components objectAtIndex:2] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding ];
-        
-        //        NSData *argsData = [argsAsString dataUsingEncoding:NSUTF8StringEncoding];
-        //        NSDictionary *args = (NSDictionary*)[NSJSONSerialization JSONObjectWithData:argsData options:kNilOptions error:nil];
-        
         if ([commandName isEqualToString:@"toggleFlash"]) {
             [self toggleFlash];
         }else if ([commandName isEqualToString:@"close"]) {
