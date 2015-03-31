@@ -5,6 +5,9 @@ var CameraWebview = {
   },
   stop : function(successFunction, errorFunction) {
       cordova.exec(successFunction, errorFunction, "CameraWebview","stop", []);
+  },
+  status : function(successFunction, errorFunction) {
+      cordova.exec(successFunction, errorFunction, "CameraWebview","status", []);
   }
 }
 

@@ -229,6 +229,10 @@ public class CameraView extends ViewGroup {
         viewIsAttached = true;
     }
     
+    public void setFlashOff(){
+        flashOn = false;
+    }
+    
     public void toggleFlash(){
         if(camera != null) {
             Camera.Parameters cp = camera.getParameters();

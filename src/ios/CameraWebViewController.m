@@ -20,6 +20,9 @@ bool lightStatusOn = false;
 - (void) viewDidLoad
 {
     [super viewDidLoad];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillResignActive:) name:UIApplicationWillResignActiveNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillTerminate:) name:UIApplicationWillTerminateNotification object:nil];
 }
 
 
@@ -80,6 +83,13 @@ bool lightStatusOn = false;
     self.customWebView.delegate = self;
     
     self.picker.cameraOverlayView = self.customWebView;
+    
+    //gesture to override autofocus
+    self.touchAndHoldRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(touchAndHold:)];
+    self.touchAndHoldRecognizer.minimumPressDuration = 0.1;
+    self.touchAndHoldRecognizer.allowableMovement = 600;
+    [self.view addGestureRecognizer:self.touchAndHoldRecognizer];
+    
     [self addChildViewController: self.picker];
     [self.picker didMoveToParentViewController: self];
     [self.view addSubview: self.picker.view];
@@ -94,6 +104,10 @@ bool lightStatusOn = false;
             [webView stringByEvaluatingJavaScriptFromString:@"document.getElementById(\"view-root\").className=\"has-flash\";"];
         }
     }
+}
+
+-(void)touchAndHold:(UILongPressGestureRecognizer *)theGesture{
+    return;
 }
 
 -(BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType: (UIWebViewNavigationType)navigationType{
@@ -130,6 +144,23 @@ bool lightStatusOn = false;
             [device unlockForConfiguration];
         }
     }
+}
+
+-(void)appWillResignActive:(NSNotification*)note
+{
+    //execute pause on webview to stop flash
+    if(self.customWebView != nil){
+        [self.customWebView stringByEvaluatingJavaScriptFromString:@"var event = document.createEvent(\"HTMLEvents\");event.initEvent(\"pause\", true, true);document.dispatchEvent(event);"];
+    }
+    lightStatusOn = false;
+    return;
+}
+
+-(void)appWillTerminate:(NSNotification*)note
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillResignActiveNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillTerminateNotification object:nil];
+    
 }
 
 @end

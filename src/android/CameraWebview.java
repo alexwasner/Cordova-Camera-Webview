@@ -4,6 +4,7 @@ import android.os.Build;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -23,20 +24,26 @@ import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaWebView;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 
 @SuppressLint({ "SetJavaScriptEnabled", "NewApi" })
 public class CameraWebview extends CordovaPlugin {
     private static final String ACTION_START_RECORDING = "start";
+    private static final String ACTION_STOP_RECORDING = "stop";
+    private static final String ACTION_STATUS = "status";
     private static final String TAG = "CAMERA_WEBVIEW";
     private String FILE_PATH = "";
     private String FILE_NAME = "";
     private CameraWebview self;
     private CameraView cameraView;
-    private WebView webViewWrapper;
+    private CustomWebview webViewWrapper;
     private RelativeLayout relativeLayout;
     private boolean hasFlash = false;
+    private boolean flashIsOn = false;
+    private JSONObject response;
+    private boolean isOpen = false;
     @Override
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
         super.initialize(cordova, webView);
@@ -52,7 +59,7 @@ public class CameraWebview extends CordovaPlugin {
             if (ACTION_START_RECORDING.equals(action)) {
                 FILE_NAME = args.getString(0);
                 final String CAMERA_FACE = args.getString(1);
-
+                this.isOpen = true;
                 if (cameraView == null) {
                     cameraView = new CameraView(cordova.getActivity(),
                             getFilePath());
@@ -72,8 +79,14 @@ public class CameraWebview extends CordovaPlugin {
                                             .getWidth(), webView
                                             .getHeight()));
                             try {
-                                webViewWrapper = new WebView((Context) cordova
+                                webViewWrapper = new CustomWebview((Context) cordova
                                         .getActivity());
+                                webViewWrapper.setOnKeyDownListener(new CustomWebview.OnKeyDownListener() {
+                                    @Override
+                                    public void onKeyDown(int keyCode, KeyEvent event) {
+                                        close();
+                                    }
+                                });
                                 webViewWrapper.getSettings()
                                         .setJavaScriptEnabled(true);
                                 webViewWrapper
@@ -87,6 +100,7 @@ public class CameraWebview extends CordovaPlugin {
                                             String javascript="javascript: document.getElementById('view-root').setAttribute('class', 'has-flash');";
                                             view.loadUrl(javascript);
                                         }
+//                                        
                                     });
                                 }
                                 
@@ -121,6 +135,7 @@ public class CameraWebview extends CordovaPlugin {
                                 
                                 relativeLayout.animate().y(0).setDuration(400);
                             } catch (Exception e) {
+                                self.isOpen = false;
                                 Log.e(TAG, "Error during preview create", e);
                                 callbackContext.error(TAG + ": "
                                         + e.getMessage());
@@ -156,6 +171,7 @@ public class CameraWebview extends CordovaPlugin {
                                     }
                                 });
                             } catch (Exception e) {
+                                self.isOpen = false;
                                 Log.e(TAG, "Error during preview create", e);
                                 callbackContext.error(TAG + ": "
                                         + e.getMessage());
@@ -164,6 +180,14 @@ public class CameraWebview extends CordovaPlugin {
                     });
                 }
                 return true;
+            }
+            else if(ACTION_STOP_RECORDING.equals(action)){
+               this.close();
+            }
+            else if(ACTION_STATUS.equals(action)){
+                response = new JSONObject();
+                response.accumulate("isOpen", this.isOpen);
+                callbackContext.success(response);
             }
 
             callbackContext.error(TAG + ": INVALID ACTION");
@@ -187,6 +211,8 @@ public class CameraWebview extends CordovaPlugin {
     }
     
     public void close() {
+        
+        this.isOpen = false;
         if(isTablet()){
             cordova.getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
         }
@@ -197,9 +223,17 @@ public class CameraWebview extends CordovaPlugin {
                     cameraView.onPause();
                 }
                 relativeLayout.animate().y(webView.getHeight()).setDuration(400).setListener(new AnimatorListenerAdapter() {
+                    @SuppressWarnings("deprecation")
                     @Override
                     public void onAnimationEnd(Animator animation) {
-                        relativeLayout.removeView(webViewWrapper);
+                        if(webViewWrapper != null){
+                            if (Build.VERSION.SDK_INT < 18) {
+                                webViewWrapper.clearView();
+                            } else {
+                                webViewWrapper.loadUrl("about:blank");
+                            }
+                            relativeLayout.removeView(webViewWrapper);
+                        }
                     }
                 });
 //              
@@ -240,8 +274,15 @@ public class CameraWebview extends CordovaPlugin {
     // Plugin Method Overrides
     @Override
     public void onPause(boolean multitasking) {
-        if (cameraView != null)
+        this.isOpen = false;
+        if (cameraView != null){
             cameraView.onPause();
+            cameraView.setFlashOff();
+        }
+        if(webViewWrapper != null){
+            String javascript="javascript: var event = document.createEvent('HTMLEvents');event.initEvent('pause', true, true);document.dispatchEvent(event);";
+            webViewWrapper.loadUrl(javascript);
+        }
         super.onPause(multitasking);
     }
 
@@ -249,11 +290,13 @@ public class CameraWebview extends CordovaPlugin {
     public void onResume(boolean multitasking) {
         super.onResume(multitasking);
         if (cameraView != null)
+            this.isOpen = true;
             cameraView.onResume();
     }
 
     @Override
     public void onDestroy() {
+        this.isOpen = false;
         cordova.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {

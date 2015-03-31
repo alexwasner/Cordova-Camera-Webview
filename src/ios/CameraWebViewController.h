@@ -11,5 +11,6 @@
 
 @property (strong) UIImagePickerController* picker;
 @property (strong) UIWebView* customWebView;
+@property (strong) UILongPressGestureRecognizer* touchAndHoldRecognizer;
 
 @end
