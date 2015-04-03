@@ -25,6 +25,9 @@ bool lightStatusOn = false;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillTerminate:) name:UIApplicationWillTerminateNotification object:nil];
 }
 
+-(BOOL)prefersStatusBarHidden {
+    return YES;
+}
 
 - (BOOL)shouldAutorotate
 {
@@ -118,6 +121,7 @@ bool lightStatusOn = false;
         if ([commandName isEqualToString:@"toggleFlash"]) {
             [self toggleFlash];
         }else if ([commandName isEqualToString:@"close"]) {
+            lightStatusOn = false;
             [[self presentingViewController] dismissViewControllerAnimated:YES completion:nil];
         }
 

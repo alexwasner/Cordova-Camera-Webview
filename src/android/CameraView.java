@@ -252,6 +252,7 @@ public class CameraView extends ViewGroup {
             Log.d(TAG, "onPause called");
             stopRecording();
             stopPreview();
+            flashOn = false;
             preview.startRecordingWhenAvailable(false);
 //            Log.d(TAG, "removing View");
 //            if(preview != null)

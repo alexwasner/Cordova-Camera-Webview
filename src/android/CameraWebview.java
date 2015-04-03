@@ -69,6 +69,7 @@ public class CameraWebview extends CordovaPlugin {
                     relativeLayout.setBackgroundColor(Color.BLACK);
                     hasFlash = cameraView.hasFlash();
                     cordova.getActivity().runOnUiThread(new Runnable() {
+                        @SuppressWarnings("deprecation")
                         @Override
                         public void run() {
 
@@ -89,6 +90,11 @@ public class CameraWebview extends CordovaPlugin {
                                 });
                                 webViewWrapper.getSettings()
                                         .setJavaScriptEnabled(true);
+
+                                webViewWrapper.getSettings().setDomStorageEnabled(true);
+                                webViewWrapper.getSettings().setDatabaseEnabled(true);
+                                webViewWrapper.getSettings().setDatabasePath(cordova.getActivity().getFilesDir().getParentFile().getPath()+"/databases/");
+                                
                                 webViewWrapper
                                         .setBackgroundColor(Color.TRANSPARENT);
                                 webViewWrapper.setLayerType(
@@ -222,7 +228,7 @@ public class CameraWebview extends CordovaPlugin {
                 if (cameraView != null) {
                     cameraView.onPause();
                 }
-                relativeLayout.animate().y(webView.getHeight()).setDuration(400).setListener(new AnimatorListenerAdapter() {
+                relativeLayout.animate().y(webView.getHeight() + 10).setDuration(400).setListener(new AnimatorListenerAdapter() {
                     @SuppressWarnings("deprecation")
                     @Override
                     public void onAnimationEnd(Animator animation) {
