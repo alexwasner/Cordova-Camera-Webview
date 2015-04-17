@@ -295,9 +295,10 @@ public class CameraWebview extends CordovaPlugin {
     @Override
     public void onResume(boolean multitasking) {
         super.onResume(multitasking);
-        if (cameraView != null)
+        if (cameraView != null){
             this.isOpen = true;
             cameraView.onResume();
+        }
     }
 
     @Override
